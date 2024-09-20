@@ -91,7 +91,7 @@ public abstract class AbstractMinecartEntityMixin {
         Level level = this.level();
 
         final double tps = 20.;
-        final double maxSpeed = 64. / tps;
+        final double maxSpeed = 100. / tps;
         final double maxMomentum = maxSpeed * 5.;
         final double vanillaMaxSpeed = 8. / tps;
         final double vanillaMaxMomentum = 40. / tps;
