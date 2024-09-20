@@ -58,9 +58,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     protected abstract double getMaxSpeed();
 
     @Shadow
-    public abstract Type getMinecartType();
-
-    @Shadow
     private static Pair<Vec3i, Vec3i> exits(RailShape shape) {
         // This is just fake code, the shadowed private function will be executed
         return Pair.of(Direction.NORTH.getNormal(), Direction.SOUTH.getNormal());
@@ -193,7 +190,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         // The horizontal speed is redistributed using the hypotenuse of the exit rail positions
         this.setDeltaMovement(new Vec3(horizontalMomentum * exitDiffX / exitHypotenuse, momentum.y, horizontalMomentum * exitDiffZ / exitHypotenuse));
 
-
         BlockPos exitPos;
         boolean exitIsAir;
         {
@@ -233,7 +229,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
             HashSet<BlockPos> checkedPositions = new HashSet<>();
             checkedPositions.add(startPos);
-
 
             BiFunction<BlockPos, RailShape, ArrayList<Pair<BlockPos, RailShape>>> checkNeighbors = (checkPos, checkRailShape) -> {
 
