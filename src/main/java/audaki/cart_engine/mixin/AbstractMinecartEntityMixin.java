@@ -289,7 +289,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
             switch (railCountEachDirection) {
                 case 0:
                 case 1:
-                    return fallback;
+                    return 8. / tps;
                 case 2:
                     return 12. / tps;
                 case 3:
