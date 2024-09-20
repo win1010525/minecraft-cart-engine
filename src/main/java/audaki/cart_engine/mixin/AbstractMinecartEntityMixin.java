@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  */
 
 @Mixin(AbstractMinecart.class)
-public abstract class AbstractMinecartEntityMixin extends Entity {
+public abstract class AbstractMinecartEntityMixin {
     
     public AbstractMinecartEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
@@ -79,18 +79,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
     @Inject(at = @At("HEAD"), method = "moveAlongTrack", cancellable = true)
     protected void moveAlongTrackOverwrite(BlockPos pos, BlockState state, CallbackInfo ci) {
-
-        // We only change logic for rideable minecarts, so we don't break hopper/chest minecart creations
-        if (this.getMinecartType() != Type.RIDEABLE) {
-            return;
-        }
-
-        // We only change logic when the minecart is currently being ridden by a living entity (player/villager/mob)
-        boolean hasLivingRider = this.getFirstPassenger() instanceof LivingEntity;
-        if (!hasLivingRider) {
-            return;
-        }
-
         this.modifiedMoveAlongTrack(pos, state);
         ci.cancel();
     }
@@ -103,7 +91,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         Level level = this.level();
 
         final double tps = 20.;
-        final double maxSpeed = 34. / tps;
+        final double maxSpeed = 64. / tps;
         final double maxMomentum = maxSpeed * 5.;
         final double vanillaMaxSpeed = 8. / tps;
         final double vanillaMaxMomentum = 40. / tps;
@@ -333,17 +321,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         if (isDiagonal || isAscending) {
             // Diagonal and Ascending/Descending is 1.4142 times faster, we correct this here
             maxSpeedForThisTick = Math.min(maxSpeedForThisTick, 0.7071 * maxSpeed);
-        }
-
-        Entity entity = this.getFirstPassenger();
-        if (entity instanceof Player) {
-            Vec3 playerDeltaMovement = entity.getDeltaMovement();
-            double m = playerDeltaMovement.horizontalDistanceSqr();
-            double n = this.getDeltaMovement().horizontalDistanceSqr();
-            if (m > 1.0E-4D && n < 0.01D) {
-                this.setDeltaMovement(this.getDeltaMovement().add(playerDeltaMovement.x * 0.1D, 0.0D, playerDeltaMovement.z * 0.1D));
-                onBrakeRail = false;
-            }
         }
 
 
