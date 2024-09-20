@@ -216,17 +216,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         ArrayList<BlockPos> adjRailPositions = new ArrayList<>();
         Supplier<Double> calculateMaxSpeedForThisTick = () -> {
 
-            double fallback = this.getMaxSpeed();
-
-            if (!this.isVehicle())
-                return fallback;
-
-            if (this.getDeltaMovement().horizontalDistance() < vanillaMaxSpeed)
-                return fallback;
-
-            if (!isEligibleFastRail(state))
-                return fallback;
-
             HashSet<BlockPos> checkedPositions = new HashSet<>();
             checkedPositions.add(startPos);
 
