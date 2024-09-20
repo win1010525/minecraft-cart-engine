@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  */
 
 @Mixin(AbstractMinecart.class)
-public abstract class AbstractMinecartEntityMixin {
+public abstract class AbstractMinecartEntityMixin extends Entity {
     
     public AbstractMinecartEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
