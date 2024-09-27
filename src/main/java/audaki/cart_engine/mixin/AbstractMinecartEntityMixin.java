@@ -58,6 +58,9 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     protected abstract double getMaxSpeed();
 
     @Shadow
+    public abstract Type getMinecartType();
+
+    @Shadow
     private static Pair<Vec3i, Vec3i> exits(RailShape shape) {
         // This is just fake code, the shadowed private function will be executed
         return Pair.of(Direction.NORTH.getNormal(), Direction.SOUTH.getNormal());
@@ -76,6 +79,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
     @Inject(at = @At("HEAD"), method = "moveAlongTrack", cancellable = true)
     protected void moveAlongTrackOverwrite(BlockPos pos, BlockState state, CallbackInfo ci) {
+
         this.modifiedMoveAlongTrack(pos, state);
         ci.cancel();
     }
@@ -142,7 +146,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                 ++thisY;
             }
         }
-
 
         momentum = this.getDeltaMovement();
         Pair<Vec3i, Vec3i> exitPair = exits(railShape);
@@ -216,6 +219,17 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         ArrayList<BlockPos> adjRailPositions = new ArrayList<>();
         Supplier<Double> calculateMaxSpeedForThisTick = () -> {
 
+            double fallback = this.getMaxSpeed();
+
+            if (!this.isVehicle())
+                return fallback;
+
+            if (this.getDeltaMovement().horizontalDistance() < vanillaMaxSpeed)
+                return fallback;
+
+            if (!isEligibleFastRail(state))
+                return fallback;
+
             HashSet<BlockPos> checkedPositions = new HashSet<>();
             checkedPositions.add(startPos);
 
@@ -259,7 +273,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                 return newNeighbors;
             };
 
-
             ArrayList<Pair<BlockPos, RailShape>> newNeighbors = checkNeighbors.apply(startPos, railShape);
 
             double checkFactor = (isDiagonal || isAscending) ? 2. : 1.;
@@ -289,7 +302,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
             switch (railCountEachDirection) {
                 case 0:
                 case 1:
-                    return 8. / tps;
+                    return fallback;
                 case 2:
                     return 12. / tps;
                 case 3:
@@ -306,7 +319,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
             // Diagonal and Ascending/Descending is 1.4142 times faster, we correct this here
             maxSpeedForThisTick = Math.min(maxSpeedForThisTick, 0.7071 * maxSpeed);
         }
-
 
         /*
         Braking Algorithm
